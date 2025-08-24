@@ -28,31 +28,34 @@ router.post("/", async (req, res) => {
 
     // 2️⃣ Send email notification
     const transporter = nodemailer.createTransport({
-      service: "gmail", // you can use other email services
+      host: "smtp.gmail.com",
+      port: 465, // secure SMTP port
+      secure: true,
       auth: {
-        user: process.env.EMAIL_USER, // your email
-        pass: process.env.EMAIL_PASS  // your email app password
-      }
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // app password for Gmail
+      },
     });
 
     const mailOptions = {
       from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER, // your email to receive messages
+      to: process.env.EMAIL_USER,
       subject: `New Contact Message from ${name}`,
       html: `
         <h3>New Message from Portfolio Contact Form</h3>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Message:</strong><br/>${message}</p>
-      `
+      `,
     };
 
+    // send mail
     await transporter.sendMail(mailOptions);
 
-    res.json({ success: true, msg: "Message received successfully!" });
+    res.json({ success: true, msg: "Message received and email sent successfully!" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, msg: "Server error" });
+    console.error("Email error:", err);
+    res.status(500).json({ success: false, msg: "Server error while sending email" });
   }
 });
 
