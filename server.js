@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+import contactRouter from "./routes/contact.js"; // adjust path
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connect
+// MongoDB connection
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB connected"))
@@ -22,20 +23,9 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Contact route
-app.post("/api/contact", (req, res) => {
-  const { name, email, message } = req.body;
+// Contact router
+app.use("/api/contact", contactRouter);
 
-  if (!name || !email || !message) {
-    return res.status(400).json({ success: false, msg: "All fields required" });
-  }
-
-  console.log("📩 New contact:", req.body);
-
-  // TODO: Save to MongoDB collection if needed
-  res.json({ success: true, msg: "Message received successfully!" });
-});
-
-// Use Render’s assigned PORT
+// Start server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
